@@ -26,11 +26,11 @@ def main(config):
     celeba_loader = None
     rafd_loader = None
 
-    if config.dataset in ['CelebA', 'Both']:
+    if config.dataset in ['CelebA']:
         celeba_loader = get_loader(config.celeba_image_dir, config.attr_path, config.selected_attrs,
                                    config.celeba_crop_size, config.image_size, config.batch_size,
                                    'CelebA', config.mode, config.num_workers)
-    if config.dataset in ['RaFD', 'Both']:
+    elif config.dataset in ['RaFD']:
         rafd_loader = get_loader(config.rafd_image_dir, None, None,
                                  config.rafd_crop_size, config.image_size, config.batch_size,
                                  'RaFD', config.mode, config.num_workers)
@@ -42,20 +42,16 @@ def main(config):
     if config.mode == 'train':
         if config.dataset in ['CelebA', 'RaFD']:
             solver.train()
-        elif config.dataset in ['Both']:
-            solver.train_multi()
     elif config.mode == 'test':
         if config.dataset in ['CelebA', 'RaFD']:
             solver.test()
-        elif config.dataset in ['Both']:
-            solver.test_multi()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Model configuration.
-    parser.add_argument('--c_dim', type=int, default=5, help='dimension of domain labels (1st dataset)')
+    parser.add_argument('--c_dim', type=int, default=5, help='dimension of domain labels (1st dataset)')  # number of attributes
     parser.add_argument('--c2_dim', type=int, default=8, help='dimension of domain labels (2nd dataset)')
     parser.add_argument('--celeba_crop_size', type=int, default=178, help='crop size for the CelebA dataset')
     parser.add_argument('--rafd_crop_size', type=int, default=256, help='crop size for the RaFD dataset')
@@ -69,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_gp', type=float, default=10, help='weight for gradient penalty')
     
     # Training configuration.
-    parser.add_argument('--dataset', type=str, default='CelebA', choices=['CelebA', 'RaFD', 'Both'])
+    parser.add_argument('--dataset', type=str, default='CelebA', choices=['CelebA', 'RaFD'])
     parser.add_argument('--batch_size', type=int, default=16, help='mini-batch size')
     parser.add_argument('--num_iters', type=int, default=200000, help='number of total iterations for training D')
     parser.add_argument('--num_iters_decay', type=int, default=100000, help='number of iterations for decaying lr')

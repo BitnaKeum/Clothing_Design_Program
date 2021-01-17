@@ -34,7 +34,7 @@ The folder should be located like `StarGAN/data`.
 
 
 ## Training networks 
--> 'StarGAN' 폴더 위치에서 수행!<br><br>
+('StarGAN' 폴더 위치에서 수행하기!)<br><br>
 (_c_dim : number of attributes, num_iters : number of training iterations_)
 
 ```
@@ -55,8 +55,10 @@ The folder should be located like `StarGAN/data`.
                 --test_iters 50000
 ```
 
+<br><br>
 
 ## Using pre-trained networks
+('StarGAN' 폴더 위치에서 수행하기!)<br><br>
 You can download pre-trained model [here](https://drive.google.com/drive/folders/1YA8Ju_UAwqj8HBe-G6bPw0F3nXCaUl_J?usp=sharing).<br>
 
 The folder should be located like `StarGAN/stargan_custom/models`.
@@ -71,5 +73,27 @@ The folder should be located like `StarGAN/stargan_custom/models`.
 ```
 
 The result images are saved in `StarGAN/stargan_custom/results`.
+
 <br><br>
+
+
+## Result image
+__Sequence__ : original - blue - check - dot - flower - leopard - red - stripe<br>
+(50000 iterations training)
+<br><br>
+
+![image](https://user-images.githubusercontent.com/37769713/104835211-6ed45c00-58e8-11eb-90b3-10a5a5265691.png)
+
+
+![image](https://user-images.githubusercontent.com/37769713/104835237-99beb000-58e8-11eb-896f-5193a20ac592.png)
+
+![image](https://user-images.githubusercontent.com/37769713/104835255-c5da3100-58e8-11eb-8ba7-9e74d1387e94.png)
+
+![image](https://user-images.githubusercontent.com/37769713/104835284-edc99480-58e8-11eb-82e7-dfade9b87f9d.png)
+
+![image](https://user-images.githubusercontent.com/37769713/104835305-0afe6300-58e9-11eb-9433-ab7e2786ac1b.png)
+
+![image](https://user-images.githubusercontent.com/37769713/104835321-1fdaf680-58e9-11eb-84a0-e3aa1460a94f.png)
+
+![image](https://user-images.githubusercontent.com/37769713/104835348-5b75c080-58e9-11eb-8c29-686c916240f1.png)
 

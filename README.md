@@ -58,11 +58,12 @@ The folder should be located like `StarGAN/data`.
 <br><br>
 
 ## Using pre-trained networks
-('StarGAN' 폴더 위치에서 수행하기!)<br><br>
 You can download pre-trained model [here](https://drive.google.com/drive/folders/1YA8Ju_UAwqj8HBe-G6bPw0F3nXCaUl_J?usp=sharing).<br>
 
 The folder should be located like `StarGAN/stargan_custom/models`.
 <br>
+
+('StarGAN' 폴더 위치에서 수행하기!)
 ```
 # Test
 !python main.py --mode test --dataset RaFD --image_size 128 --c_dim 7 \
@@ -77,7 +78,7 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 <br><br>
 
 
-## Result image
+## Result examples
 __Sequence__ : original - blue - check - dot - flower - leopard - red - stripe<br>
 (50000 iterations training)
 <br><br>

@@ -6,7 +6,6 @@ import numpy as np
 
 class ResidualBlock(nn.Module):
     """Residual Block with instance normalization."""
-
     def __init__(self, dim_in, dim_out):
         super(ResidualBlock, self).__init__()
         self.main = nn.Sequential(

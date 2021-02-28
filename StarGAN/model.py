@@ -131,11 +131,11 @@ class Generator(nn.Module):
         l4 = self.layer4(l3)
         l5 = self.layer5(l4)
         l6 = self.layer6(l5)
-        l6 += l4    # Skip-connection
+        l6 = l4.clone() + l6.clone()    # Skip-connection
         l7 = self.layer7(l6)
-        l7 += l3    # Skip-connection
+        l7 = l3.clone() + l7.clone()    # Skip-connection
         l8 = self.layer8(l7)
-        l8 += l2    # Skip-connection
+        l8 = l2.clone() + l8.clone()    # Skip-connection
         l9 = self.layer9(l8)
         l10 = self.layer10(l9)
         return l10

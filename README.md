@@ -40,11 +40,11 @@ The folder should be located like `StarGAN/data`.
 ```
 # Train
 !python main.py --mode train --dataset RaFD --rafd_crop_size 256 --image_size 128 --c_dim 5 \
-                --num_iters 100000 \
+                --num_iters 140000 \
                 --rafd_image_dir data/custom/train \
                 --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
                 --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
-                --model_save_step 5000
+                --model_save_step 10000
 ```
 ```
 # Test
@@ -52,7 +52,7 @@ The folder should be located like `StarGAN/data`.
                 --rafd_image_dir data/custom/test \
                 --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
                 --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
-                --test_iters 100000
+                --test_iters 140000
 ```
 
 The result images are saved in `StarGAN/stargan_custom/results`.
@@ -72,7 +72,7 @@ The folder should be located like `StarGAN/stargan_custom/models`.
                 --rafd_image_dir data/custom/test \
                 --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
                 --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
-                --test_iters 100000
+                --test_iters 140000
 ```
 
 The result images are saved in `StarGAN/stargan_custom/results`.

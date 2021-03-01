@@ -532,8 +532,8 @@ class Solver(object):
             data_loader = self.rafd_loader
 
         with torch.no_grad():
-            for i, (x_real, c_org) in enumerate(data_loader):
-
+            cnt = -1  # 결과 이미지 수
+            for i, (x_real, c_org) in enumerate(data_loader):  # 매번 batch_size개의 이미지와 도메인을 가져옴
                 # Prepare input images and target domain labels.
                 x_real = x_real.to(self.device)
                 c_trg_list = self.create_labels(c_org, self.c_dim, self.dataset, self.selected_attrs)
@@ -543,11 +543,24 @@ class Solver(object):
                 for c_trg in c_trg_list:
                     x_fake_list.append(self.G(x_real, c_trg))
 
-                # Save the translated images.
+                # Save the translated images. (결과물 합쳐서 저장)
                 x_concat = torch.cat(x_fake_list, dim=3)
-                result_path = os.path.join(self.result_dir, '{}-images.jpg'.format(i + 1))
+                result_path = os.path.join(self.result_dir, 'images-{}.jpg'.format(i + 1))
                 save_image(self.denorm(x_concat.data.cpu()), result_path, nrow=1, padding=0)
                 print('Saved real and fake images into {}...'.format(result_path))
+
+                # Save the translated images. (결과물 각각 저장)
+                for x_fake_batch in x_fake_list:
+                    if cnt == -1:  # 원본 이미지는 저장 X
+                        cnt = cnt + 1
+                        continue
+                    for x_fake in x_fake_batch:
+                        cnt = cnt + 1
+                        result_path = os.path.join(self.result_dir, '{}.jpg'.format(cnt))
+                        # x_concat = torch.cat([x_fake], dim=3)
+                        save_image(self.denorm(x_fake.data.cpu()), result_path, nrow=1, padding=0)
+                        print('Saved fake images into {}...'.format(result_path))
+
 
     # def test_multi(self):
     #     """Translate images using StarGAN trained on multiple datasets."""

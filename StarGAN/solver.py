@@ -532,46 +532,79 @@ class Solver(object):
             data_loader = self.rafd_loader
 
         with torch.no_grad():
-            cnt = -1  # 결과 이미지 수
+            g_loss_cls_list = []
+            g_loss_adv_list = []
+            g_loss_rec_list = []
             g_loss_list = []
+            cnt = 0  # 원본 이미지 수
+
             for i, (x_real, c_org) in enumerate(data_loader):  # 매번 batch_size개의 이미지와 도메인을 가져옴
                 # Prepare input images and target domain labels.
                 x_real = x_real.to(self.device)
                 c_trg_list = self.create_labels(c_org, self.c_dim, self.dataset, self.selected_attrs)
 
+                # print("c_org.shape : ", c_org.shape)
+
                 # Translate images.
                 x_fake_list = [x_real]
                 for j, c_trg in enumerate(c_trg_list):
+                    # if j == 0:
+                    #     continue
                     x_fake = self.G(x_real, c_trg)
                     x_fake_list.append(x_fake)
 
-                    # classification loss 계산
+                    # Adversarial Loss
                     out_src, out_cls = self.D(x_fake)
+                    g_loss_adv = - torch.mean(out_src)
+                    g_loss_adv_list.append(g_loss_adv.item())
+
+                    # Classification Loss
                     trg_list = torch.tensor([j] * c_trg.shape[0])
                     trg_list = trg_list.to(self.device)
                     g_loss_cls = self.classification_loss(out_cls, trg_list, self.dataset)
-                    g_loss_list.append(g_loss_cls.item())
+                    g_loss_cls_list.append(g_loss_cls.item())
+
+                    # Reconstruction Loss (수정필요)
+                    # print(" c_org(bef) !!!\n ", c_org)
+                    # c_org = self.label2onehot(c_org, self.c_dim)
+                    # print(" c_org(aft) !!!\n ", c_org)
+                    # print("c_org.shape : ", c_org.shape)
+                    # c_org = c_org.to(self.device)
+                    # print("c_org.shape : ", c_org.shape)
+                    # x_reconst = self.G(x_fake, c_org)
+                    # g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
+                    # g_loss_rec_list.append(g_loss_rec.item())
+
+                    # Total Loss (Generator)
+                    # g_loss = g_loss_adv + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
+                    # g_loss_list.append(g_loss.item())
 
                 # Save the translated images. (결과물 합쳐서 저장)
                 x_concat = torch.cat(x_fake_list, dim=3)
                 result_path = os.path.join(self.result_dir, 'images-{}.jpg'.format(i + 1))
                 save_image(self.denorm(x_concat.data.cpu()), result_path, nrow=1, padding=0)
-                print('Saved real and fake images into {}...'.format(result_path))
+                # print('Saved real and fake images into {}...'.format(result_path))
 
-                # # Save the translated images. (결과물 각각 저장)
-                # for x_fake_batch in x_fake_list:
-                #     if cnt == -1:    # 원본 이미지는 저장 X
-                #         cnt = cnt + 1
-                #         continue
-                #     for x_fake in x_fake_batch:
-                #         cnt = cnt + 1
-                #         result_path = os.path.join(self.result_dir, '{}.jpg'.format(cnt))
-                #         #x_concat = torch.cat([x_fake], dim=3)
-                #         save_image(self.denorm(x_fake.data.cpu()), result_path, nrow=1, padding=0)
-                #         print('Saved fake images into {}...'.format(result_path))
-            print("g_loss_list : ", g_loss_list)
-            print("test classification loss :", sum(g_loss_list) / len(g_loss_list))
+                # Save the translated images. (결과물 각각 저장)
+                mini_cnt = 0  # 한 원본 이미지에 대한 합성 이미지 수
+                start_cnt = cnt
+                for x_fake_batch in x_fake_list:
+                    # 원본 이미지는 저장 X
+                    # if cnt == 0:
+                    #     cnt = cnt + 1
+                    #     continue
+                    cnt = start_cnt
+                    mini_cnt = mini_cnt + 1
 
+                    for x_fake in x_fake_batch:
+                        cnt = cnt + 1
+                        result_path = os.path.join(self.result_dir, f'{cnt}-{mini_cnt}.jpg')
+                        save_image(self.denorm(x_fake.data.cpu()), result_path, nrow=1, padding=0)
+                        # print('Saved fake images into {}...'.format(result_path))
+            print("Adversarial Loss :", sum(g_loss_adv_list) / len(g_loss_adv_list))
+            print("Classification Loss :", sum(g_loss_cls_list) / len(g_loss_cls_list))
+            # print("Reconstruction Loss :", sum(g_loss_rec_list) / len(g_loss_rec_list))
+            # print("Total Loss :", sum(g_loss_list) / len(g_loss_list))
 
     # def test_multi(self):
     #     """Translate images using StarGAN trained on multiple datasets."""

@@ -172,7 +172,7 @@ class Solver(object):
             c_trg_list.append(c_trg.to(self.device))
         return c_trg_list
 
-    def classification_loss(self, logit, target, dataset='CelebA'):
+    def classification_loss(self, logit, target, dataset='CelebA'): # logit: 예측 도메인, target: 실제 도메인
         """Compute binary or softmax cross entropy loss."""
         if dataset == 'CelebA':
             return F.binary_cross_entropy_with_logits(logit, target, size_average=False) / logit.size(0)
@@ -543,13 +543,9 @@ class Solver(object):
                 x_real = x_real.to(self.device)
                 c_trg_list = self.create_labels(c_org, self.c_dim, self.dataset, self.selected_attrs)
 
-                # print("c_org.shape : ", c_org.shape)
-
                 # Translate images.
                 x_fake_list = [x_real]
                 for j, c_trg in enumerate(c_trg_list):
-                    # if j == 0:
-                    #     continue
                     x_fake = self.G(x_real, c_trg)
                     x_fake_list.append(x_fake)
 
@@ -564,20 +560,16 @@ class Solver(object):
                     g_loss_cls = self.classification_loss(out_cls, trg_list, self.dataset)
                     g_loss_cls_list.append(g_loss_cls.item())
 
-                    # Reconstruction Loss (수정필요)
-                    # print(" c_org(bef) !!!\n ", c_org)
-                    # c_org = self.label2onehot(c_org, self.c_dim)
-                    # print(" c_org(aft) !!!\n ", c_org)
-                    # print("c_org.shape : ", c_org.shape)
-                    # c_org = c_org.to(self.device)
-                    # print("c_org.shape : ", c_org.shape)
-                    # x_reconst = self.G(x_fake, c_org)
-                    # g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
-                    # g_loss_rec_list.append(g_loss_rec.item())
+                    # Reconstruction Loss
+                    if list(c_org.shape) == [self.batch_size]:
+                        c_org = self.label2onehot(c_org, self.c_dim)
+                    x_reconst = self.G(x_fake, c_org)
+                    g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
+                    g_loss_rec_list.append(g_loss_rec.item())
 
                     # Total Loss (Generator)
-                    # g_loss = g_loss_adv + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
-                    # g_loss_list.append(g_loss.item())
+                    g_loss = g_loss_adv + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
+                    g_loss_list.append(g_loss.item())
 
                 # Save the translated images. (결과물 합쳐서 저장)
                 x_concat = torch.cat(x_fake_list, dim=3)
@@ -589,8 +581,7 @@ class Solver(object):
                 mini_cnt = 0  # 한 원본 이미지에 대한 합성 이미지 수
                 start_cnt = cnt
                 for x_fake_batch in x_fake_list:
-                    # 원본 이미지는 저장 X
-                    # if cnt == 0:
+                    # if cnt == 0:  # 원본 이미지는 저장 X
                     #     cnt = cnt + 1
                     #     continue
                     cnt = start_cnt
@@ -603,10 +594,12 @@ class Solver(object):
                         # print('Saved fake images into {}...'.format(result_path))
             print("Adversarial Loss :", sum(g_loss_adv_list) / len(g_loss_adv_list))
             print("Classification Loss :", sum(g_loss_cls_list) / len(g_loss_cls_list))
-            # print("Reconstruction Loss :", sum(g_loss_rec_list) / len(g_loss_rec_list))
-            # print("Total Loss :", sum(g_loss_list) / len(g_loss_list))
+            print("Reconstruction Loss :", sum(g_loss_rec_list) / len(g_loss_rec_list))
+            print("Total Loss :", sum(g_loss_list) / len(g_loss_list))
 
-    # def test_multi(self):
+
+
+            # def test_multi(self):
     #     """Translate images using StarGAN trained on multiple datasets."""
     #     # Load the trained generator.
     #     self.restore_model(self.test_iters)

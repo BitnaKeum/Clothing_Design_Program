@@ -1,4 +1,4 @@
-# Deep-Learning based Clothing Design Program 
+# GAN based Clothing Design Program 
 
 _Clothing design program improving StarGAN and Mask R-CNN_
 

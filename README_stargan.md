@@ -34,7 +34,7 @@ The folder should be located like `StarGAN/data`.
 
 
 ## Training networks 
-('StarGAN' 폴더 위치에서 수행하기!)<br><br>
+Run it from `StarGAN` path.<br>
 (_c_dim : number of attributes, num_iters : number of training iterations_)
 
 ```
@@ -50,13 +50,15 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 
 <br><br>
 
-## ~~Using pre-trained networks~~
-~~You can download pre-trained model [here](https://drive.google.com/drive/folders/1YA8Ju_UAwqj8HBe-G6bPw0F3nXCaUl_J?usp=sharing).~~<br>
+## Using pre-trained networks
+You can download pre-trained models [here](https://drive.google.com/drive/folders/1YA8Ju_UAwqj8HBe-G6bPw0F3nXCaUl_J?usp=sharing).<br>
 
-The folder should be located like `StarGAN/stargan_custom/models`.
+The folder should be located like `StarGAN/stargan_custom/models`.<br>
+Please set the name of model file that you want to use as _'#-G.ckpt'_ and _'#-D.ckpt'_.
+
 <br>
 
-('StarGAN' 폴더 위치에서 수행하기!)
+Run it from `StarGAN` path.<br>
 ```
 # Test
 !python main.py --mode test --dataset RaFD --image_size 128 --c_dim 5 \

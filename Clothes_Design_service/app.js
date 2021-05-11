@@ -25,7 +25,7 @@ var loginfail = 0;
 var conn = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'vmfkdlsgo1',
+  password : 'YOUR PASSWORD',
   database : 'log',
   multipleStatements: true
 });
@@ -50,7 +50,7 @@ app.use(session({
     host:'localhost',
     port:3306,
     user:'root',
-    password:'vmfkdlsgo1',
+    password:'YOUR PASSWORD',
     database:'log'
   })
 }));

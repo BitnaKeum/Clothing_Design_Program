@@ -11,8 +11,6 @@ import datetime
 
 from tensorboardX import SummaryWriter
 
-writer = SummaryWriter()
-
 
 class Solver(object):
     """Solver for training and testing StarGAN."""
@@ -35,6 +33,7 @@ class Solver(object):
         self.lambda_cls = config.lambda_cls
         self.lambda_rec = config.lambda_rec
         self.lambda_gp = config.lambda_gp
+        self.model_name = config.model_name
 
         # Training configurations.
         self.dataset = config.dataset
@@ -207,6 +206,8 @@ class Solver(object):
             start_iters = self.resume_iters
             self.restore_model(self.resume_iters)
 
+        writer = SummaryWriter("./runs/" + self.model_name)
+
         # Start training.
         print('Start training...')
         start_time = time.time()
@@ -301,14 +302,14 @@ class Solver(object):
 
                 # Logging.
                 loss['G/loss_adv'] = g_loss_adv.item()
-                loss['G/loss_rec'] = g_loss_rec.item()
                 loss['G/loss_cls'] = g_loss_cls.item()
+                loss['G/loss_rec'] = g_loss_rec.item()
 
                 # 학습 loss 그래프 그리기
                 if (iteration + 1) % 100 == 0:  # 매 100 iteration 마다
-                    writer.add_scalar('G/loss_adv', loss['G/loss_adv'], iteration)
-                    writer.add_scalar('G/loss_cls', loss['G/loss_cls'], iteration)
-                    writer.add_scalar('G/loss_rec', loss['G/loss_rec'], iteration)
+                    writer.add_scalar('G/loss_adv', g_loss_adv.item(), iteration)
+                    writer.add_scalar('G/loss_cls', g_loss_cls.item(), iteration)
+                    writer.add_scalar('G/loss_rec', g_loss_rec.item(), iteration)
 
             # =================================================================================== #
             #                                 4. Miscellaneous                                    #
@@ -355,8 +356,8 @@ class Solver(object):
 
             # 학습 loss 그래프 그리기
             if (iteration + 1) % 100 == 0:  # 매 100 iteration 마다
-                writer.add_scalar('D/loss_adv', loss['D/loss_adv'], iteration)
-                writer.add_scalar('D/loss_cls', loss['D/loss_cls'], iteration)
+                writer.add_scalar('D/loss_adv', d_loss_adv.item(), iteration)
+                writer.add_scalar('D/loss_cls', d_loss_cls.item(), iteration)
 
             # Colab
             # %load_ext tensorboard

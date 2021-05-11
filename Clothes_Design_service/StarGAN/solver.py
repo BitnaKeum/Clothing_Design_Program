@@ -9,6 +9,10 @@ import os
 import time
 import datetime
 
+from tensorboardX import SummaryWriter
+
+writer = SummaryWriter()
+
 
 class Solver(object):
     """Solver for training and testing StarGAN."""
@@ -206,7 +210,7 @@ class Solver(object):
         # Start training.
         print('Start training...')
         start_time = time.time()
-        for i in range(start_iters, self.num_iters):
+        for iteration in range(start_iters, self.num_iters):
 
             # =================================================================================== #
             #                             1. Preprocess input data                                #
@@ -242,7 +246,7 @@ class Solver(object):
 
             # Compute loss with real images.
             out_src, out_cls = self.D(x_real)
-            d_loss_real = - torch.mean(out_src)
+            d_loss_real = torch.mean(out_src)
             d_loss_cls = self.classification_loss(out_cls, label_org, self.dataset)
 
             # Compute loss with fake images.
@@ -257,15 +261,15 @@ class Solver(object):
             d_loss_gp = self.gradient_penalty(out_src, x_hat)
 
             # Backward and optimize.
-            d_loss = d_loss_real + d_loss_fake + self.lambda_cls * d_loss_cls + self.lambda_gp * d_loss_gp
+            d_loss_adv = d_loss_real - d_loss_fake - d_loss_gp
+            d_loss = - d_loss_adv + self.lambda_cls * d_loss_cls
             self.reset_grad()
             d_loss.backward()
             self.d_optimizer.step()
 
             # Logging.
             loss = {}
-            loss['D/loss_real'] = d_loss_real.item()
-            loss['D/loss_fake'] = d_loss_fake.item()
+            loss['D/loss_adv'] = d_loss_adv.item()
             loss['D/loss_cls'] = d_loss_cls.item()
             loss['D/loss_gp'] = d_loss_gp.item()
 
@@ -273,84 +277,94 @@ class Solver(object):
             #                               3. Train the generator                                #
             # =================================================================================== #
 
-            if (i + 1) % self.n_critic == 0:
+            if (iteration + 1) % self.n_critic == 0:
                 # Original-to-target domain.
                 x_fake = self.G(x_real, c_trg)
                 out_src, out_cls = self.D(x_fake)
-                g_loss_fake = - torch.mean(out_src)
+                g_loss_adv = - torch.mean(out_src)  # g_loss_fake
                 g_loss_cls = self.classification_loss(out_cls, label_trg, self.dataset)
-
-
 
                 # Target-to-original domain.
                 # 원본 Reconstruction Loss
                 x_reconst = self.G(x_fake, c_org)
-                g_loss_rec = torch.mean(torch.abs(x_real - x_reconst)) 
+                g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
                 # 수정 Reconstruction Loss
-                ###print("c_org shape!! :" ,c_org.shape)
-                ### if list(c_org.shape) == [self.batch_size]:
-                ###     c_org = self.label2onehot(c_org, self.c_dim)
                 # out_src_reconst, out_cls_reconst = self.D(x_reconst)
                 # c_org_convert = torch.max(c_org, 1)[1]  # one-hot 인코딩 형태를 원래대로 변환 (ex: [0,1,0,0,0]->[1])
                 # g_loss_rec = self.classification_loss(out_cls_reconst, c_org_convert, self.dataset)
 
-
-
                 # Backward and optimize.
-                g_loss = g_loss_fake + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
+                g_loss = g_loss_adv + self.lambda_cls * g_loss_cls + self.lambda_rec * g_loss_rec
                 self.reset_grad()
                 g_loss.backward()
                 self.g_optimizer.step()
 
                 # Logging.
-                loss['G/loss_fake'] = g_loss_fake.item()
+                loss['G/loss_adv'] = g_loss_adv.item()
                 loss['G/loss_rec'] = g_loss_rec.item()
                 loss['G/loss_cls'] = g_loss_cls.item()
+
+                # 학습 loss 그래프 그리기
+                if (iteration + 1) % 100 == 0:  # 매 100 iteration 마다
+                    writer.add_scalar('G/loss_adv', loss['G/loss_adv'], iteration)
+                    writer.add_scalar('G/loss_cls', loss['G/loss_cls'], iteration)
+                    writer.add_scalar('G/loss_rec', loss['G/loss_rec'], iteration)
 
             # =================================================================================== #
             #                                 4. Miscellaneous                                    #
             # =================================================================================== #
 
             # Print out training information.
-            if (i + 1) % self.log_step == 0:
+            if (iteration + 1) % self.log_step == 0:
                 et = time.time() - start_time
                 et = str(datetime.timedelta(seconds=et))[:-7]
-                log = "Elapsed [{}], Iteration [{}/{}]".format(et, i + 1, self.num_iters)
+                log = "Elapsed [{}], Iteration [{}/{}]".format(et, iteration + 1, self.num_iters)
                 for tag, value in loss.items():
                     log += ", {}: {:.4f}".format(tag, value)
                 print(log)
 
                 if self.use_tensorboard:
                     for tag, value in loss.items():
-                        self.logger.scalar_summary(tag, value, i + 1)
+                        self.logger.scalar_summary(tag, value, iteration + 1)
 
             # Translate fixed images for debugging.
-            if (i + 1) % self.sample_step == 0:
+            if (iteration + 1) % self.sample_step == 0:
                 with torch.no_grad():
                     x_fake_list = [x_fixed]
                     for c_fixed in c_fixed_list:
                         x_fake_list.append(self.G(x_fixed, c_fixed))
                     x_concat = torch.cat(x_fake_list, dim=3)
-                    sample_path = os.path.join(self.sample_dir, '{}-images.jpg'.format(i + 1))
+                    sample_path = os.path.join(self.sample_dir, '{}-images.jpg'.format(iteration + 1))
                     save_image(self.denorm(x_concat.data.cpu()), sample_path, nrow=1, padding=0)
                     print('Saved real and fake images into {}...'.format(sample_path))
 
             # Save model checkpoints.
-            if (i + 1) % self.model_save_step == 0:
-                G_path = os.path.join(self.model_save_dir, '{}-G.ckpt'.format(i + 1))
-                D_path = os.path.join(self.model_save_dir, '{}-D.ckpt'.format(i + 1))
+            if (iteration + 1) % self.model_save_step == 0:
+                G_path = os.path.join(self.model_save_dir, '{}-G.ckpt'.format(iteration + 1))
+                D_path = os.path.join(self.model_save_dir, '{}-D.ckpt'.format(iteration + 1))
                 torch.save(self.G.state_dict(), G_path)
                 torch.save(self.D.state_dict(), D_path)
                 print('Saved model checkpoints into {}...'.format(self.model_save_dir))
 
             # Decay learning rates.
-            if (i + 1) % self.lr_update_step == 0 and (i + 1) > (self.num_iters - self.num_iters_decay):
+            if (iteration + 1) % self.lr_update_step == 0 and (iteration + 1) > (self.num_iters - self.num_iters_decay):
                 g_lr -= (self.g_lr / float(self.num_iters_decay))
                 d_lr -= (self.d_lr / float(self.num_iters_decay))
                 self.update_lr(g_lr, d_lr)
                 print('Decayed learning rates, g_lr: {}, d_lr: {}.'.format(g_lr, d_lr))
 
+            # 학습 loss 그래프 그리기
+            if (iteration + 1) % 100 == 0:  # 매 100 iteration 마다
+                writer.add_scalar('D/loss_adv', loss['D/loss_adv'], iteration)
+                writer.add_scalar('D/loss_cls', loss['D/loss_cls'], iteration)
 
+            # Colab
+            # %load_ext tensorboard
+            # %tensorboard --logdir runs --port=6006
+            # Pycharm
+            # tensorboard --logdir runs
+
+        writer.close()
 
     def test(self):
         """Translate images using StarGAN trained on a single dataset."""
@@ -367,9 +381,8 @@ class Solver(object):
             g_loss_cls_list = []
             g_loss_adv_list = []
             g_loss_rec_list = []
-            g_loss_rec_new_list = []
             g_loss_list = []
-            cnt = 0 # 원본 이미지 수
+            cnt = 0  # 원본 이미지 수
 
             for i, (x_real, c_org) in enumerate(data_loader):  # 매번 batch_size개의 이미지와 도메인을 가져옴
                 # Prepare input images and target domain labels.
@@ -390,46 +403,34 @@ class Solver(object):
                     # Classification Loss
                     trg_list = torch.tensor([j] * c_trg.shape[0])
                     trg_list = trg_list.to(self.device)
-                    # print("classification")
-                    # print(trg_list.shape)
-                    # print(trg_list)
-                    # print(out_cls.shape)
                     g_loss_cls = self.classification_loss(out_cls, trg_list, self.dataset)
                     g_loss_cls_list.append(g_loss_cls.item())
-                    
+
                     # Reconstruction Loss
-                    # 원본
                     if list(c_org.shape) == [self.batch_size]:
                         c_org = self.label2onehot(c_org, self.c_dim)
                     x_reconst = self.G(x_fake, c_org)
+                    # 원본
                     g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
                     g_loss_rec_list.append(g_loss_rec.item())
                     # 수정 버전
                     # out_src_reconst, out_cls_reconst = self.D(x_reconst)
-                    # # print("reconstruction")
-                    # # print(c_org.shape)
-                    # # print(c_org)
-                    # # print(out_cls_reconst.shape)
                     # c_org_convert = torch.max(c_org, 1)[1]  # one-hot 인코딩 형태를 원래대로 변환 (ex: [0,1,0,0,0]->[1])
-                    # # print(c_org_convert.shape)
-                    # # print(c_org_convert)
-                    # g_loss_rec_new = self.classification_loss(out_cls_reconst, c_org_convert, self.dataset)
-                    # g_loss_rec_new_list.append(g_loss_rec_new.item())
-            
+                    # g_loss_rec = self.classification_loss(out_cls_reconst, c_org_convert, self.dataset)
+                    # g_loss_rec_list.append(g_loss_rec.item())
 
                     # Total Loss (Generator)
                     g_loss = g_loss_adv + self.lambda_rec * g_loss_rec + self.lambda_cls * g_loss_cls
                     g_loss_list.append(g_loss.item())
 
-
                 # Save the translated images. (결과물 합쳐서 저장)
                 x_concat = torch.cat(x_fake_list, dim=3)
                 result_path = os.path.join(self.result_dir, 'images-{}.jpg'.format(i + 1))
                 save_image(self.denorm(x_concat.data.cpu()), result_path, nrow=1, padding=0)
-                #print('Saved real and fake images into {}...'.format(result_path))
+                # print('Saved real and fake images into {}...'.format(result_path))
 
                 # Save the translated images. (결과물 한장씩 저장)
-                mini_cnt = 0    # 한 원본 이미지에 대한 합성 이미지 수
+                mini_cnt = 0  # 한 원본 이미지에 대한 합성 이미지 수
                 start_cnt = cnt
                 for x_fake_batch in x_fake_list:
                     # if cnt == 0:  # 원본 이미지는 저장 X
@@ -437,15 +438,15 @@ class Solver(object):
                     #     continue
                     cnt = start_cnt
                     mini_cnt = mini_cnt + 1
-                    
+
                     for x_fake in x_fake_batch:
                         cnt = cnt + 1
                         result_path = os.path.join(self.result_dir, f'{cnt}-{mini_cnt}.jpg')
                         save_image(self.denorm(x_fake.data.cpu()), result_path, nrow=1, padding=0)
-                        #print('Saved fake images into {}...'.format(result_path))
-            print("Adversarial Loss :", sum(g_loss_adv_list) / len(g_loss_adv_list))
-            print("Classification Loss :", sum(g_loss_cls_list) / len(g_loss_cls_list))
-            print("Reconstruction Loss :", sum(g_loss_rec_list) / len(g_loss_rec_list))
-            #print("Reconstruction Loss (수정) :", sum(g_loss_rec_new_list) / len(g_loss_rec_new_list))
-            print("Total Loss :", sum(g_loss_list) / len(g_loss_list))    
+                        # print('Saved fake images into {}...'.format(result_path))
+
+            print("Adversarial Loss (G) :", sum(g_loss_adv_list) / len(g_loss_adv_list))
+            print("Classification Loss (G) :", sum(g_loss_cls_list) / len(g_loss_cls_list))
+            print("Reconstruction Loss (G) :", sum(g_loss_rec_list) / len(g_loss_rec_list))
+            print("Total Loss :", sum(g_loss_list) / len(g_loss_list))
 

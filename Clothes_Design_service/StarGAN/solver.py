@@ -417,6 +417,7 @@ class Solver(object):
                     # 수정 버전
                     # out_src_reconst, out_cls_reconst = self.D(x_reconst)
                     # c_org_convert = torch.max(c_org, 1)[1]  # one-hot 인코딩 형태를 원래대로 변환 (ex: [0,1,0,0,0]->[1])
+                    # c_org_convert = c_org_convert.to(self.device)
                     # g_loss_rec = self.classification_loss(out_cls_reconst, c_org_convert, self.dataset)
                     # g_loss_rec_list.append(g_loss_rec.item())
 

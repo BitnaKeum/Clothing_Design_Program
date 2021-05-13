@@ -36,15 +36,6 @@ pip install scikit-image
 
 pip install tensorflow-gpu==2.0
 
-__mrcnn/model.py line20, 21을 주석처리하고 line19 주석 해제한다.__
-
-```
-import tensorflow as tf
-# import tensorflow.compat.v1 as tf
-# tf.disable_v2_behavior() 
-```
-
-
 pip install keras==2.1.5
 
 pip install "h5py<3.0"

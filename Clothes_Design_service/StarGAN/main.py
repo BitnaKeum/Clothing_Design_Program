@@ -8,6 +8,7 @@ from torch.backends import cudnn
 def str2bool(v):
     return v.lower() in ('true')
 
+
 def main(config):
     # For fast training.
     cudnn.benchmark = True
@@ -34,7 +35,6 @@ def main(config):
         rafd_loader = get_loader(config.rafd_image_dir, None, None,
                                  config.rafd_crop_size, config.image_size, config.batch_size,
                                  'RaFD', config.mode, config.num_workers)
-    
 
     # Solver for training and testing StarGAN.
     solver = Solver(celeba_loader, rafd_loader, config)
@@ -51,7 +51,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Model configuration.
-    parser.add_argument('--c_dim', type=int, default=5, help='dimension of domain labels (1st dataset)')  # number of attributes
+    parser.add_argument('--c_dim', type=int, default=5,
+                        help='dimension of domain labels (1st dataset)')  # number of attributes
     parser.add_argument('--c2_dim', type=int, default=8, help='dimension of domain labels (2nd dataset)')
     parser.add_argument('--celeba_crop_size', type=int, default=178, help='crop size for the CelebA dataset')
     parser.add_argument('--rafd_crop_size', type=int, default=256, help='crop size for the RaFD dataset')
@@ -63,7 +64,8 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_cls', type=float, default=1, help='weight for domain classification loss')
     parser.add_argument('--lambda_rec', type=float, default=10, help='weight for reconstruction loss')
     parser.add_argument('--lambda_gp', type=float, default=10, help='weight for gradient penalty')
-    parser.add_argument('--model_name', type=str, default='Original', choices=['Original', 'U-net ver1', 'U-net ver2', 'Reconstruction'])
+    parser.add_argument('--model_name', type=str, default='Original',
+                        choices=['Original', 'U-net ver1', 'U-net ver2', 'Reconstruction'])
 
     # Training configuration.
     parser.add_argument('--dataset', type=str, default='CelebA', choices=['CelebA', 'RaFD'])

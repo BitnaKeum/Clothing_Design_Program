@@ -47,7 +47,7 @@ python main.py --mode test --dataset RaFD --image_size 128 --c_dim 5 --rafd_imag
 
 The result images are saved in `StarGAN/stargan_custom/results`.
 
-(_c_dim: number of attributes<br>num_iters: number of training iterations<br>model_name: 'Original' / 'U-net ver1' / 'U-net ver2' / 'Reconstruction'_)
+(_c_dim: number of attributes<br>num_iters: number of training iterations<br>model_name: 'Original' / 'U-net' / 'Reconstruction'_)
 <br>
 
 <br><br>
@@ -74,7 +74,7 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 
 ## Result examples
 __Sequence__ : original - blue - check - dot - red - stripe<br>
-(140000 iterations training, No Skip-connection)
+_(140000 iterations training, Original model)_
 <br><br>
 
 ![image](https://user-images.githubusercontent.com/37769713/109409571-3a6bb980-79d7-11eb-84fe-9e761272e6cc.png)

@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_rec', type=float, default=10, help='weight for reconstruction loss')
     parser.add_argument('--lambda_gp', type=float, default=10, help='weight for gradient penalty')
     parser.add_argument('--model_name', type=str, default='Original',
-                        choices=['Original', 'U-net ver1', 'U-net ver2', 'Reconstruction'])
+                        choices=['Original', 'U-net', 'Reconstruction'])
 
     # Training configuration.
     parser.add_argument('--dataset', type=str, default='CelebA', choices=['CelebA', 'RaFD'])

@@ -4,8 +4,8 @@ GAN based clothing design program
 ## USAGE
 * vscode에서 [ctrl + shift + p] -> python interpreter 검색 후 가상환경 선택(Mask_RCNN, StarGAN모델 동시 구동환경)
 * 데이터베이스 계정 별도 수정 필요
-* MySQL 테이블 생성 (Clothes_Design/create_table.sql 파일 참조)
-* Clothing_Design_Program\Clothes_Design_service 폴더에서 [node app] 명령어 실행
+* MySQL 테이블 생성 (/Clothing_Design_Program/Clothes_Design_service/create_table.sql 파일 참조)
+* /Clothing_Design_Program/Clothes_Design_service 폴더에서 [node app] 명령어 실행
 * http://localhost:3003/auth/login 에서 회원가입, 로그인 후 구동
 
 ---

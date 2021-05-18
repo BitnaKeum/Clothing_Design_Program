@@ -362,7 +362,7 @@ class Solver(object):
             # Colab
             # %load_ext tensorboard
             # %tensorboard --logdir runs --port=6006
-            # Pycharm
+            # Terminal
             # tensorboard --logdir runs
 
         writer.close()

@@ -1,4 +1,4 @@
-# ########## skip connection (ver.2) ################ 
+# ########## skip connection (ver.2) ################
 # 다운샘플링, 업샘플링 수 하나씩 줄임
 
 import torch
@@ -111,21 +111,20 @@ class Generator(nn.Module):
         # This is because instance normalization ignores the shifting (or bias) effect.
         c = c.view(c.size(0), c.size(1), 1, 1)
         c = c.repeat(1, 1, x.size(2), x.size(3))
-        c = c.to(self.device)   # 추가
-        x = x.to(self.device)   # 추가
+        c = c.to(self.device)  # 추가
+        x = x.to(self.device)  # 추가
         x = torch.cat([x, c], dim=1)  # concatenate
-        
-        # return self.main(x)
 
+        # return self.main(x)
 
         l1 = self.layer1(x)
         l2 = self.layer2(l1)
         l3 = self.layer3(l2)
         l4 = self.layer4(l3)
         l5 = self.layer5(l4)
-        l5 = l3.clone() + l5.clone()    # Skip-connection
+        l5 = l3.clone() + l5.clone()  # Skip-connection
         l6 = self.layer6(l5)
-        l6 = l2.clone() + l6.clone()    # Skip-connection
+        l6 = l2.clone() + l6.clone()  # Skip-connection
         l7 = self.layer7(l6)
         l8 = self.layer8(l7)
         return l8

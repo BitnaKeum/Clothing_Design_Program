@@ -2,9 +2,11 @@
 
 [[원본 깃허브 주소]](https://github.com/matterport/Mask_RCNN)
 
-[[Download Link - trained weight file]](https://drive.google.com/file/d/1SB9HVItbI86-f2rKq3HYAGd9evUzHe7a/view?usp=sharing)
+아래 weight파일은 \Clothes_Design_service\Mask_RCNN\logs 경로에 다운로드
+[[Download Link - trained weight file]](https://drive.google.com/file/d/1nESVKGIhwlBG_Ptw7sopY-W8hkxDyl_a/view?usp=sharing)
 
-[[Download Link - json files]](https://drive.google.com/drive/folders/1CHPFxcQ6OLFqkHgFsEPybe8kxAy-7-uW?usp=sharing)
+아래 mask_rcnn_coco.h5 파일은 \Clothes_Design_service\Mask_RCNN 경로에 다운로드
+[[Download Link - json files]](https://drive.google.com/file/d/1FrArULdFobCBnkAKEyaWFiw4Y2GPJB3s/view?usp=sharing)
 
 ---
 

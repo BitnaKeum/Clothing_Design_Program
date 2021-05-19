@@ -5,21 +5,22 @@ html
     body
         link(rel='stylesheet' type='text/css' href='/stylesheets/style.css')
         form(action='upload' method='post' enctype="multipart/form-data")
+            h2 ALBUM
+            a.soksung(href='/auth/logout') 로그아웃   
+            br
+            br 
             input#profile_img_upload(type='file' accept='image/jpg,image/png,image/jpeg' name='userfile')
             label(for='profile_img_upload')
               i.far.fa-file-image select image
             
-            input(type='submit')
+
+            input(type='submit' value='업로드')
             //- input(type='file' name='userfile')
-            //- input(type='submit')     
-            a(href='/auth/logout')
-                | logout
-            
 
             br
             br
             .child-page-listing
-                h2 ALBUM
+                
                 .grid-container
                     //- for(var i=0; i < len, ++i)
                     each val, index in file

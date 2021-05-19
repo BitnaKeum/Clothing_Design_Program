@@ -205,3 +205,47 @@ h2 {
 }
 
 
+.fileRegiBtn label {
+	display: inline-block; 
+	padding: .5em .75em; 
+	color: #ffffff; 
+	font-size: inherit; 
+	line-height: normal; 
+	vertical-align: middle; 
+	background-color: #FC7D01; 
+	cursor: pointer; 
+	border: 1px solid #ebebeb; 
+	border-bottom-color: #e2e2e2; 
+	border-radius: .25em;
+}
+
+/*파일선택시 선택된 파일명이 붙는것을 가려준다*/
+
+.fileRegiBtn input[type="file"]{
+	position: absolute; 
+	width: 1px; 
+	height: 1px; 
+	padding: 0; 
+	margin: -1px; 
+	overflow: hidden; 
+	clip:rect(0,0,0,0); 
+	border: 0;
+}
+
+.btn_submit{
+  background-image: url('../images/confirm.gif');
+     background-position:  0px 0px;
+     background-repeat: no-repeat;
+     width: 60px;
+     height: 29px;
+     border: 0px;
+  cursor:pointer;
+  outline: 0;
+ }
+ .soksung {
+  color: #ffffff;
+  background: #3379FE;
+  font-size: 0.8em;
+  padding: 0.3em 0.5em;
+  margin-right: 0.1em;
+  }

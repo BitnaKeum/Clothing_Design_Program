@@ -10,6 +10,8 @@ var mysql = require('mysql');
 var multer = require('multer');
 var shellParser = require('node-shell-parser');
 var fs = require('fs')
+var util  = require('util')
+var mime = require('mime')
 
 var storage = multer.diskStorage({
     destination: function(req, file, cb){
@@ -25,7 +27,7 @@ var loginfail = 0;
 var conn = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'YOUR PASSWORD',
+  password : 'YOUR PASSWORD HERE',
   database : 'log',
   multipleStatements: true
 });
@@ -39,6 +41,8 @@ app.use(express.static('public/mask_output'))
 app.use(express.static('public/gan_output'))
 app.use(express.static('public/stylesheets'))
 app.use(express.static('public/uploads'))
+//app.use(express.static(__dirname + '/file'));
+
 // app.use('/upload', express.static('uploads'))
 // app.use('/process', express.static('output'))
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -50,7 +54,7 @@ app.use(session({
     host:'localhost',
     port:3306,
     user:'root',
-    password:'YOUR PASSWORD',
+    password:'YOUR PASSWORD HERE',
     database:'log'
   })
 }));
@@ -216,50 +220,52 @@ app.get('/process/:id', (req, res)=>{
     var sql = "select id, image from image where id=? and username=?";
     conn.query(sql, [id, req.user.username], (err, rows)=>{
         if(err) console.error(err);
-        else{           
-            console.log('original image name: ' + rows[0].image);
-            original_image = rows[0].image
-            var shellOutput = '';
+        else{
             const spawn = require('child_process').spawn
-            const result = spawn('python', ['.\\Mask_RCNN\\samples\\balloon\\balloon.py', 'splash', '--weights=.\\Mask_RCNN\\logs\\mask_rcnn_deepfashion2_0040.h5', '--image=.\\public\\uploads\\'+rows[0].image])
-            result.stdout.on('data', function(data){
-                console.log(data.toString())
-                shellOutput += data;
+            const resize_result = spawn('python', ['.\\resize.py', rows[0].image]);
+            resize_result.stdout.on('data', function(data){
+                console.log(data.toString());
             })
-            result.stderr.on('data', function(data){
-                console.log(data.toString())
-            });
-            result.stdout.on('end', function(){
-                var output_mask = shellOutput.split("\n")[5]
-                console.log(output_mask);
-                console.log("save original file name: "+ rows[0].image)
-                const tmp = spawn('python', ['.\\StarGAN\\save_file.py', '--image='+rows[0].image])
-                tmp.stdout.on('data', function(data){
+            resize_result.stderr.on('data', function(data){
+                console.log(data.toString());
+            })
+            resize_result.stdout.on('end', function(){
+                console.log('original image name: ' + rows[0].image);
+                original_image = rows[0].image
+                var shellOutput = '';
+                //const spawn = require('child_process').spawn
+                const result = spawn('python', ['.\\Mask_RCNN\\samples\\balloon\\balloon.py', 'splash', '--weights=.\\Mask_RCNN\\logs\\mask_rcnn_deepfashion2_0040.h5', '--image=.\\public\\uploads\\'+'re'+rows[0].image])
+                result.stdout.on('data', function(data){
                     console.log(data.toString())
+                    shellOutput += data;
                 })
-                tmp.stderr.on('data', function(data){
-                    console.log("original file save error stream: "+data.toString())
-                })
-                tmp.stdout.on('end', function(){
-                        // -------------
-                    //const spawn2 = require('child_process').spawn
-                    const result2 = spawn('python', ['.\\StarGAN\\main.py', '--mode=test', '--dataset=RaFD', '--image_size=128', '--c_dim=5', '--rafd_image_dir=.\\StarGAN\\data\\custom\\test', '--sample_dir=.\\StarGAN\\stargan_custom\\samples', '--log_dir=.\\StarGAN\\stargan_custom\\logs', '--model_save_dir=.\\StarGAN\\stargan_custom\\models', '--result_dir=.\\public\\gan_output', '--test_iters=140000'])
-                    result2.stdout.on('data', function(data){
-                        console.log("result2 data stream: " + data.toString())
+                result.stderr.on('data', function(data){
+                    console.log(data.toString())
+                });
+                result.stdout.on('end', function(){
+                    var output_mask = shellOutput.split("\n")[5]
+                    console.log(output_mask);
+                    console.log("save original file name: "+ rows[0].image)
+                    const tmp = spawn('python', ['.\\StarGAN\\save_file.py', "--image="+rows[0].image])
+                    //const tmp = spawn('python', ['.\\StarGAN\\save_file.py', '--image=.\\public\\uploads\\'+'re'+rows[0].image])
+                    tmp.stdout.on('data', function(data){
+                        console.log(data.toString())
                     })
-                    result2.stderr.on('data', function(data){
-                        console.log("result2 error stream: " + data.toString())
+                    tmp.stderr.on('data', function(data){
+                        console.log("original file save error stream: "+data.toString())
                     })
-                    result2.stdout.on('end', function(){
-                        const result3 = spawn('python', ['.\\Mask_RCNN\\histogram_matching.py'])
-                        result3.stdout.on('data', function(data){
-                            console.log("result3 data stream: " + data.toString())
+                    tmp.stdout.on('end', function(){
+                            // -------------
+                        //const spawn2 = require('child_process').spawn
+                        const result2 = spawn('python', ['.\\StarGAN\\main.py', '--mode=test', '--dataset=RaFD', '--image_size=256', '--batch_size=1', '--c_dim=9', '--rafd_image_dir=.\\StarGAN\\data\\custom\\test', '--sample_dir=.\\StarGAN\\stargan_custom\\samples', '--log_dir=.\\StarGAN\\stargan_custom\\logs', '--model_save_dir=.\\StarGAN\\stargan_custom\\models', '--result_dir=.\\public\\gan_output', '--test_iters=140000'])
+                        result2.stdout.on('data', function(data){
+                            console.log("result2 data stream: " + data.toString())
                         })
-                        result3.stderr.on('data', function(data){
-                            console.log("result3 error stream: " + data.toString())
+                        result2.stderr.on('data', function(data){
+                            console.log("result2 error stream: " + data.toString())
                         })
-                        result3.stdout.on('end', function(){
-                            const result4 = spawn('python', ['.\\Mask_RCNN\\segmentation.py'])
+                        result2.stdout.on('end', function(){
+                            const result4 = spawn('python', ['.\\Mask_RCNN\\segmentation.py', '--image=re'+rows[0].image])
                             result4.stdout.on('data', function(data){
                                 console.log('result4 data stream: ' + data.toString())
                             })
@@ -267,49 +273,207 @@ app.get('/process/:id', (req, res)=>{
                                 console.log('result4 error stream: '+ data.toString())
                             })
                             result4.stdout.on('end', function(){
+                                var sql2 = "insert into outimage(id, username, image) values(?, ?, ?)";
+                                conn.query(sql2, [rows[0].id, req.user.username, output_mask], (err, rows2)=>{
+                                    if(err) console.error(err);
+                                    else{
+                                        console.log("P output_mask: "+ output_mask);
+                                        console.log("P rows[0].id: "+rows[0].id)
+                                        console.log("P req.user.username: "+ req.user.username)
+                                        var sql3 = "select real_id, id, image from outimage where image = ? and id=? and username=?";
+                                        conn.query(sql3, [output_mask, rows[0].id, req.user.username], (err, rows3)=>{
+                                            //console.log("rows3[0].real_id: " + rows3[0].real_id)
+                                            //console.log("rows3[0].id: " + rows3[0].id)
+                                            //console.log("rows3[0].image: " + rows3[0].image)
+                                            res.render('process', {orgimg: rows[0], newimg: rows3[0]}) // info.id, info.image로 access
+                                        })
+                                    
+                                    }
+                                })
                                 console.log('process end')
                             })
                         })
+                                             //------------------
+                     // var sql2 = "insert into outimage(id, username, image) values(?, ?, ?)";
+                        // conn.query(sql2, [rows[0].id, req.user.username, output_mask], (err, rows2)=>{
+                        //     if(err) console.error(err);
+                        //     else{
+                        //         console.log("P output_mask: "+ output_mask);
+                        //         console.log("P rows[0].id: "+rows[0].id)
+                        //         console.log("P req.user.username: "+ req.user.username)
+                        //         var sql3 = "select real_id, id, image from outimage where image = ? and id=? and username=?";
+                        //         conn.query(sql3, [output_mask, rows[0].id, req.user.username], (err, rows3)=>{
+                        //             //console.log("rows3[0].real_id: " + rows3[0].real_id)
+                        //             //console.log("rows3[0].id: " + rows3[0].id)
+                        //             //console.log("rows3[0].image: " + rows3[0].image)
+                        //             res.render('process', {orgimg: rows[0], newimg: rows3[0]}) // info.id, info.image로 access
+                        //         })
+                     //     }
+                        // })
+                        
                     })
 
-                    //------------------
-
-                    var sql2 = "insert into outimage(id, username, image) values(?, ?, ?)";
-                    conn.query(sql2, [rows[0].id, req.user.username, output_mask], (err, rows2)=>{
-                        if(err) console.error(err);
-                        else{
-                            console.log("P output_mask: "+ output_mask);
-                            console.log("P rows[0].id: "+rows[0].id)
-                            console.log("P req.user.username: "+ req.user.username)
-                            var sql3 = "select real_id, id, image from outimage where image = ? and id=? and username=?";
-                            conn.query(sql3, [output_mask, rows[0].id, req.user.username], (err, rows3)=>{
-                                console.log("rows3[0].real_id: " + rows3[0].real_id)
-                                console.log("rows3[0].id: " + rows3[0].id)
-                                console.log("rows3[0].image: " + rows3[0].image)
-                                res.render('process', {orgimg: rows[0], newimg: rows3[0]}) // info.id, info.image로 access
-                            })
-
-                        }
-                    })
                 })
-                
             })
         }
     })
 })
 
-const download = require('images-downloader').images;
-app.get('/album/:id', (req, res)=>{
-    var id = req.params.id
-    const dest = "./tmp";
-    var sql = "select image from outimage where real_id = ?";
-    conn.query(sql, [id], (err, rows)=>{
-        console.log("rows:", rows);
-        var image_path = "http://localhost:3003/output/"+rows.image;
-        const images = [image_path];
-        download(images, dest).then(result=>{
-            console.log('Images downloaded', result);
-        }).catch(error => console.log('downloaded error', error))
-        res.redirect('/upload')
-    })
+// const download = require('images-downloader').images;
+// app.get('/album/:id', (req, res)=>{
+//     var id = req.params.id
+//     const dest = "./tmp";
+//     var sql = "select image from outimage where real_id = ?";
+//     conn.query(sql, [id], (err, rows)=>{
+//         console.log("rows:", rows);
+//         var image_path = "http://localhost:3003/output/"+rows.image;
+//         const images = [image_path];
+//         download(images, dest).then(result=>{
+//             console.log('Images downloaded', result);
+//         }).catch(error => console.log('downloaded error', error))
+//         res.redirect('/upload')
+//     })
+// })
+
+app.get('/album/:id',  function(req, res){
+    var fileId = req.params.id;
+    var origFileNm, savedFileNm, savedPath, fileSize;
+    if(fileId == '1'){
+        origFileNm = '1-1.jpg'
+        savedFileNm = '1-1.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '2'){
+        origFileNm = '1-2.jpg'
+        savedFileNm = '1-2.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '3'){
+        origFileNm = '1-3.jpg'
+        savedFileNm = '1-3.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '4'){
+        origFileNm = '1-4.jpg'
+        savedFileNm = '1-4.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '5'){
+        origFileNm = '1-5.jpg'
+        savedFileNm = '1-5.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '6'){
+        origFileNm = '1-6.jpg'
+        savedFileNm = '1-6.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '7'){
+        origFileNm = '1-7.jpg'
+        savedFileNm = '1-7.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '8'){
+        origFileNm = '1-8.jpg'
+        savedFileNm = '1-8.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '9'){
+        origFileNm = '1-9.jpg'
+        savedFileNm = '1-9.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '10'){
+        origFileNm = '1-10.jpg'
+        savedFileNm = '1-10.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '21'){
+        origFileNm = '2-1.jpg'
+        savedFileNm = '2-1.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '22'){
+        origFileNm = '2-2.jpg'
+        savedFileNm = '2-2.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '23'){
+        origFileNm = '2-3.jpg'
+        savedFileNm = '2-3.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '24'){
+        origFileNm = '2-4.jpg'
+        savedFileNm = '2-4.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '25'){
+        origFileNm = '2-5.jpg'
+        savedFileNm = '2-5.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '26'){
+        origFileNm = '2-6.jpg'
+        savedFileNm = '2-6.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '27'){
+        origFileNm = '2-7.jpg'
+        savedFileNm = '2-7.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '28'){
+        origFileNm = '2-8.jpg'
+        savedFileNm = '2-8.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '29'){
+        origFileNm = '2-9.jpg'
+        savedFileNm = '2-9.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    else if(fileId == '30'){
+        origFileNm = '2-10.jpg'
+        savedFileNm = '2-10.jpg'
+        savedPath = '.\\public\\output'
+        fileSize = '';
+    }
+    var file = savedPath + '/' + savedFileNm;
+    mimetype = mime.lookup(origFileNm);
+    res.setHeader('Content-disposition', 'attachment; filename='+origFileNm);
+    res.setHeader('Content-type', mimetype);
+    var filestream = fs.createReadStream(file);
+    filestream.pipe(res);
+    res.end()
 })
+
+
+// var app = express()
+// app.set('views', __dirname + '/views');
+// app.set('view engine', 'ejs')
+// app.engine('html', require('ejs').renderFile);
+// app.use(express.static('public'));
+// app.use(express.static(__dirname + '/file'));
+// app.get('/', function(req, res){
+//     res.render('fileList.html')
+// })

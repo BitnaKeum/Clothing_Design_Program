@@ -266,6 +266,8 @@ def color_splash(image, mask):
         # We're treating all instances as one, so collapse the mask into one layer
         mask = (np.sum(mask, -1, keepdims=True) >= 1)
         splash = np.where(mask, 255, 0).astype(np.uint8)
+        splash = splash.reshape(256, 256)
+       
     else:
         splash = gray.astype(np.uint8)
     return splash
@@ -292,7 +294,7 @@ def detect_and_color_splash(model, image_path=None, video_path=None):
         #file_name = "splash_{:%Y%m%dT%H%M%S}.png".format(datetime.datetime.now())
         # file_name = image_path.split('/')[-1]
         filetype = image_path.split(".")
-        file_name = 'mask.' + filetype[-1]
+        file_name = 'mask.png' 
         #file_name = '_'.join(image_path.split('\\')[-1].split("_")[0:-1]) + "_{:%Y%m%dT%H%M%S}".format(datetime.datetime.now()) + '.' + filetype[-1]
         print(file_name)
         skimage.io.imsave("C:/Users/123/Desktop/Clothes_Design/public/mask_output/"+file_name, splash)

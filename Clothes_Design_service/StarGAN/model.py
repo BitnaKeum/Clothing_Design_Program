@@ -1,10 +1,25 @@
-########## skip connection ###########
+# ########## skip connection (ver.2) ################
+# 다운샘플링, 업샘플링 수 하나씩 줄임
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+
+# class ResidualBlock(nn.Module):
+#     """Residual Block with instance normalization."""
+#     def __init__(self, dim_in, dim_out):
+#         super(ResidualBlock, self).__init__()
+#         self.main = nn.Sequential(
+#             nn.Conv2d(dim_in, dim_out, kernel_size=3, stride=1, padding=1, bias=False),
+#             nn.InstanceNorm2d(dim_out, affine=True, track_running_stats=True),
+#             nn.ReLU(inplace=True),
+#             nn.Conv2d(dim_out, dim_out, kernel_size=3, stride=1, padding=1, bias=False),
+#             nn.InstanceNorm2d(dim_out, affine=True, track_running_stats=True))
+#
+#     def forward(self, x):
+#         return x + self.main(x)
 
 class Generator(nn.Module):
     """Generator network."""
@@ -14,13 +29,25 @@ class Generator(nn.Module):
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+        # layers = []
+        # layers.append(nn.Conv2d(3 + c_dim, conv_dim, kernel_size=7, stride=1, padding=3, bias=False))
+        # layers.append(nn.InstanceNorm2d(conv_dim, affine=True, track_running_stats=True))
+        # layers.append(nn.ReLU(inplace=True))
+
         self.layer1 = nn.Sequential(
             nn.Conv2d(3 + c_dim, conv_dim, kernel_size=7, stride=1, padding=3, bias=False),
             nn.InstanceNorm2d(conv_dim, affine=True, track_running_stats=True),
             nn.ReLU(inplace=True))
 
-        # Down-sampling layers.
+        # # Down-sampling layers.
+        # curr_dim = conv_dim
+        # for i in range(2):
+        #     layers.append(nn.Conv2d(curr_dim, curr_dim * 2, kernel_size=4, stride=2, padding=1, bias=False))
+        #     layers.append(nn.InstanceNorm2d(curr_dim * 2, affine=True, track_running_stats=True))
+        #     layers.append(nn.ReLU(inplace=True))
+        #     curr_dim = curr_dim * 2
 
+        # Down-sampling layers.
         curr_dim = conv_dim
         self.layer2 = nn.Sequential(
             nn.Conv2d(curr_dim, curr_dim * 2, kernel_size=4, stride=2, padding=1, bias=False),
@@ -34,13 +61,22 @@ class Generator(nn.Module):
             nn.ReLU(inplace=True))
         curr_dim = curr_dim * 2
 
+        # # Bottleneck layers.
+        # for i in range(repeat_num):
+        #     layers.append(ResidualBlock(dim_in=curr_dim, dim_out=curr_dim))
+
         self.layer4 = nn.Sequential(
             nn.Conv2d(curr_dim, curr_dim * 2, kernel_size=4, stride=2, padding=1, bias=False),
             nn.InstanceNorm2d(curr_dim * 2, affine=True, track_running_stats=True),
             nn.ReLU(inplace=True))
         curr_dim = curr_dim * 2
 
-        # Up-sampling layers.
+        # # Up-sampling layers.
+        # for i in range(2):
+        #     layers.append(nn.ConvTranspose2d(curr_dim, curr_dim // 2, kernel_size=4, stride=2, padding=1, bias=False))
+        #     layers.append(nn.InstanceNorm2d(curr_dim // 2, affine=True, track_running_stats=True))
+        #     layers.append(nn.ReLU(inplace=True))
+        #     curr_dim = curr_dim // 2
 
         self.layer5 = nn.Sequential(
             nn.ConvTranspose2d(curr_dim, curr_dim // 2, kernel_size=4, stride=2, padding=1, bias=False),
@@ -60,9 +96,14 @@ class Generator(nn.Module):
             nn.ReLU(inplace=True))
         curr_dim = curr_dim // 2
 
+        # layers.append(nn.Conv2d(curr_dim, 3, kernel_size=7, stride=1, padding=3, bias=False))
+        # layers.append(nn.Tanh())
+
         self.layer8 = nn.Sequential(
             nn.Conv2d(curr_dim, 3, kernel_size=7, stride=1, padding=3, bias=False),
             nn.Tanh())
+
+        # self.main = nn.Sequential(*layers)
 
     def forward(self, x, c):  # x_real, c_target
         # Replicate spatially and concatenate domain information.
@@ -70,9 +111,11 @@ class Generator(nn.Module):
         # This is because instance normalization ignores the shifting (or bias) effect.
         c = c.view(c.size(0), c.size(1), 1, 1)
         c = c.repeat(1, 1, x.size(2), x.size(3))
-        c = c.to(self.device)
-        x = x.to(self.device)
+        c = c.to(self.device)  # 추가
+        x = x.to(self.device)  # 추가
         x = torch.cat([x, c], dim=1)  # concatenate
+
+        # return self.main(x)
 
         l1 = self.layer1(x)
         l2 = self.layer2(l1)

@@ -92,30 +92,8 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 _(U-net model, 140000 iterations training)_
 <br><br>
 
-![image](https://user-images.githubusercontent.com/37769713/109409571-3a6bb980-79d7-11eb-84fe-9e761272e6cc.png)
+![results_images](https://user-images.githubusercontent.com/41022183/118954630-eac6d980-b998-11eb-8f45-e392efd2d34e.png)
 
-![image](https://user-images.githubusercontent.com/37769713/109409581-50797a00-79d7-11eb-99dc-6bf4b406101a.png)
-
-![image](https://user-images.githubusercontent.com/37769713/109409596-70a93900-79d7-11eb-8ad2-e9444d2b3374.png)
-
-![image](https://user-images.githubusercontent.com/37769713/109409609-874f9000-79d7-11eb-8759-f14080ca0bac.png)
-
-![image](https://user-images.githubusercontent.com/37769713/109409616-a2220480-79d7-11eb-87da-cc15b944aaf8.png)
-
-![image](https://user-images.githubusercontent.com/37769713/109409636-ce3d8580-79d7-11eb-9abb-f2da5568994a.png)
-
-![image](https://user-images.githubusercontent.com/37769713/109409643-d990b100-79d7-11eb-96f6-4364aeba521c.png)
-
-
-
-
-![image](https://user-images.githubusercontent.com/37769713/118100928-00288a80-b412-11eb-9bee-6ce4afbb8e31.png)
-
-![image](https://user-images.githubusercontent.com/37769713/118101301-6a412f80-b412-11eb-9729-7df94db06ff8.png)
-
-![image](https://user-images.githubusercontent.com/37769713/118101348-7927e200-b412-11eb-8c94-0f75adaf9eb8.png)
-
-![image](https://user-images.githubusercontent.com/37769713/118101479-9fe61880-b412-11eb-9fbb-e2776dc8798b.png)
 
 
 

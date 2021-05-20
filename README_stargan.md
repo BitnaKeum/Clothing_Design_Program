@@ -5,9 +5,6 @@ _Clothing design program improving StarGAN and Mask R-CNN_
 <br><br>
 
 
-__Attributes (temporary)__<br>
-: blue, check, dot, red, stripe
-
 
 <br><br>
 
@@ -21,13 +18,26 @@ __Attributes (temporary)__<br>
 
 
 ## Downloading datasets
+
+___Attributes__ : check, dot, leopard, stripe, tiedye, blue, green, purple, red_
+<br><br>
+
+
 You can download the clothing dataset [here](https://drive.google.com/drive/folders/12zLjMI1XY0Tl_QK2Gwb8P8V-yLsNvoFU?usp=sharing)!
 <br>
 
 The folder should be located like `StarGAN/data`.
 
+<br>
 
-(_The folder structure follows what is shown [here](https://github.com/yunjey/StarGAN/blob/master/jpg/RaFD.md)._)
+The folder structure should be like this. (_Reference [here](https://github.com/yunjey/StarGAN/blob/master/jpg/RaFD.md)._)
+
+![image](https://user-images.githubusercontent.com/37769713/118932307-daa3ff80-b982-11eb-93da-0f3ad8c50c66.png)
+
+All of the test images can be located in just one folder. (don't need to split the images.)<br>
+But the other folders should exist even if they are empty.
+
+
 
 
 <br><br>
@@ -38,7 +48,7 @@ Run it from `StarGAN` path.<br>
 
 ```
 # Train
-python main.py --mode train --dataset RaFD --rafd_crop_size 256 --image_size 128 --c_dim 5 --num_iters 140000 --rafd_image_dir data/custom/train --sample_dir stargan_custom/samples --log_dir stargan_custom/logs --model_save_dir stargan_custom/models --result_dir stargan_custom/results --model_save_step 20000 --model_name 'Original'
+python main.py --mode train --dataset RaFD --rafd_crop_size 256 --image_size 128 --c_dim 5 --num_iters 140000 --rafd_image_dir data/custom/train --sample_dir stargan_custom/samples --log_dir stargan_custom/logs --model_save_dir stargan_custom/models --result_dir stargan_custom/results --model_save_step 20000 --model_name 'U-net'
 ```
 ```
 # Test
@@ -47,7 +57,7 @@ python main.py --mode test --dataset RaFD --image_size 128 --c_dim 5 --rafd_imag
 
 The result images are saved in `StarGAN/stargan_custom/results`.
 
-(_c_dim: number of attributes<br>num_iters: number of training iterations<br>model_name: 'Original' / 'U-net' / 'Reconstruction'_)
+(_c_dim: number of attributes<br>num_iters: number of training iterations<br>model_name: 'U-net' (default) / 'Original' / 'Reconstruction'_)
 <br>
 
 <br><br>
@@ -56,8 +66,14 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 ## Using pre-trained networks
 You can download pre-trained models [here](https://drive.google.com/drive/folders/1YA8Ju_UAwqj8HBe-G6bPw0F3nXCaUl_J?usp=sharing).<br>
 
+`140000-G.ckpt`, `140000-D.ckpt` : U-net model (good-performance) &nbsp; __<- Use this !__<br>
+`140000-G_origin.ckpt`, `140000-D_origin.ckpt` : Original StarGAN model<br>
+`140000-G_reconstruction.ckpt`, `140000-D_reconstruction.ckpt` : Reconstruction loss changed model (poor-performance) <br>
+
+<br>
+
 The folder should be located like `StarGAN/stargan_custom/models`.<br>
-Please set the name of model file that you want to use as _'#-G.ckpt'_ and _'#-D.ckpt'_.
+Please set the name of model file that you want to use as _'140000-G.ckpt'_ and _'140000-D.ckpt'_.
 
 <br>
 
@@ -73,8 +89,7 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 
 
 ## Result examples
-__Sequence__ : original - blue - check - dot - red - stripe<br>
-_(140000 iterations training, Original model)_
+_(U-net model, 140000 iterations training)_
 <br><br>
 
 ![image](https://user-images.githubusercontent.com/37769713/109409571-3a6bb980-79d7-11eb-84fe-9e761272e6cc.png)

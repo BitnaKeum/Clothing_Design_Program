@@ -286,8 +286,8 @@ class Solver(object):
                 g_loss_cls = self.classification_loss(out_cls, label_trg, self.dataset)
 
                 # Target-to-original domain.
-                # 원본 Reconstruction Loss
                 x_reconst = self.G(x_fake, c_org)
+                # 원본 Reconstruction Loss
                 g_loss_rec = torch.mean(torch.abs(x_real - x_reconst))
                 # 수정 Reconstruction Loss
                 # out_src_reconst, out_cls_reconst = self.D(x_reconst)

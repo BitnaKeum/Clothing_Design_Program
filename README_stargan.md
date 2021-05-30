@@ -48,11 +48,21 @@ Run it from `StarGAN` path.<br>
 
 ```
 # Train
-python main.py --mode train --dataset RaFD --rafd_crop_size 256 --image_size 128 --c_dim 5 --num_iters 140000 --rafd_image_dir data/custom/train --sample_dir stargan_custom/samples --log_dir stargan_custom/logs --model_save_dir stargan_custom/models --result_dir stargan_custom/results --model_save_step 20000 --model_name 'U-net'
+!python main.py --mode train --dataset RaFD --rafd_crop_size 256 --image_size 256 --c_dim 9 \
+                --num_iters 140000 \
+                --rafd_image_dir data/custom/train --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
+                --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
+                --model_save_step 20000 \
+                --model_name 'U-net'
 ```
+
 ```
 # Test
-python main.py --mode test --dataset RaFD --image_size 128 --c_dim 5 --rafd_image_dir data/custom/test --sample_dir stargan_custom/samples --log_dir stargan_custom/logs --model_save_dir stargan_custom/models --result_dir stargan_custom/results --test_iters 140000
+!python main.py --mode test --dataset RaFD --image_size 256 --batch_size 1 --c_dim 9 \
+                --rafd_image_dir data/custom/test \
+                --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
+                --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
+                --test_iters 140000
 ```
 
 The result images are saved in `StarGAN/stargan_custom/results`.
@@ -80,8 +90,14 @@ Please set the name of model file that you want to use as _'140000-G.ckpt'_ and 
 Run it from `StarGAN` path.<br>
 ```
 # Test
-python main.py --mode test --dataset RaFD --image_size 128 --batch_size 1 --c_dim 5 --rafd_image_dir data/custom/test --sample_dir stargan_custom/samples --log_dir stargan_custom/logs --model_save_dir stargan_custom/models --result_dir stargan_custom/results --test_iters 140000
+!python main.py --mode test --dataset RaFD --image_size 256 --batch_size 1 --c_dim 9 \
+                --rafd_image_dir data/custom/test \
+                --sample_dir stargan_custom/samples --log_dir stargan_custom/logs \
+                --model_save_dir stargan_custom/models --result_dir stargan_custom/results \
+                --test_iters 140000
 ```
+
+
 
 The result images are saved in `StarGAN/stargan_custom/results`.
 
@@ -95,7 +111,17 @@ _(U-net model, 140000 iterations training)_
 ![results_images](https://user-images.githubusercontent.com/41022183/118954630-eac6d980-b998-11eb-8f45-e392efd2d34e.png)
 
 
+<br><br>
 
 
+## Citation
 
-
+We referenced this [paper](https://arxiv.org/abs/1711.09020). Thanks.
+```
+@inproceedings{choi2018stargan,
+author={Yunjey Choi and Minje Choi and Munyoung Kim and Jung-Woo Ha and Sunghun Kim and Jaegul Choo},
+title={StarGAN: Unified Generative Adversarial Networks for Multi-Domain Image-to-Image Translation},
+booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+year={2018}
+}
+```

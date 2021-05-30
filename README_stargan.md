@@ -108,7 +108,8 @@ The result images are saved in `StarGAN/stargan_custom/results`.
 _(U-net model, 140000 iterations training)_
 <br><br>
 
-![results_images](https://user-images.githubusercontent.com/41022183/118954630-eac6d980-b998-11eb-8f45-e392efd2d34e.png)
+![image](https://user-images.githubusercontent.com/37769713/120093837-c963ab80-c157-11eb-9a32-f4e348e4b727.png)
+
 
 
 <br><br>

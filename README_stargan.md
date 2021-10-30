@@ -6,6 +6,17 @@ _Clothing design program improving StarGAN and Mask R-CNN_
 
 
 
+
+## Result examples
+_(U-net model, 140000 iterations training)_
+<br><br>
+
+![image](https://user-images.githubusercontent.com/37769713/120093837-c963ab80-c157-11eb-9a32-f4e348e4b727.png)
+
+
+
+
+
 <br><br>
 
 ## Dependencies
@@ -19,24 +30,20 @@ _Clothing design program improving StarGAN and Mask R-CNN_
 
 ## Downloading datasets
 
-___Attributes__ : check, dot, leopard, stripe, tiedye, blue, green, purple, red_
-<br><br>
-
-
 You can download the clothing dataset [here](https://drive.google.com/drive/folders/12zLjMI1XY0Tl_QK2Gwb8P8V-yLsNvoFU?usp=sharing)!
 <br>
 
 The folder should be located like `StarGAN/data`.
-
 <br>
 
-The folder structure should be like this. (_Reference [here](https://github.com/yunjey/StarGAN/blob/master/jpg/RaFD.md)._)
+The folder structure should be like this.
 
 ![image](https://user-images.githubusercontent.com/37769713/118932307-daa3ff80-b982-11eb-93da-0f3ad8c50c66.png)
 
 All of the test images can be located in just one folder. (don't need to split the images.)<br>
-But the other folders should exist even if they are empty.
+But the other folders should exist even if they are empty.<br>
 
+_Dataset Attributes : check, dot, leopard, stripe, tiedye, blue, green, purple, red_
 
 
 
@@ -101,23 +108,12 @@ Run it from `StarGAN` path.<br>
 
 The result images are saved in `StarGAN/stargan_custom/results`.
 
-<br><br>
 
-
-## Result examples
-_(U-net model, 140000 iterations training)_
-<br><br>
-
-![image](https://user-images.githubusercontent.com/37769713/120093837-c963ab80-c157-11eb-9a32-f4e348e4b727.png)
+<br><br><br>
 
 
 
-<br><br>
-
-
-## Citation
-
-We referenced this [paper](https://arxiv.org/abs/1711.09020). Thanks.
+_We referenced this [paper](https://arxiv.org/abs/1711.09020). Thanks._
 ```
 @inproceedings{choi2018stargan,
 author={Yunjey Choi and Minje Choi and Munyoung Kim and Jung-Woo Ha and Sunghun Kim and Jaegul Choo},

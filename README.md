@@ -41,7 +41,7 @@
 
 - 설계도
 
-![image](https://user-images.githubusercontent.com/37769713/139529004-f9f58fc5-044f-43be-8f09-d7477e4f03b3.png)
+![image](https://user-images.githubusercontent.com/37769713/139530813-380082b2-5785-4ed4-8f0f-21f6d3ee423f.png)
 
 <br>
 
